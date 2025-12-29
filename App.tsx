@@ -4,11 +4,11 @@ import { fetchSteps, updateStep } from './services/workflowService';
 import { type WorkflowStep } from './types';
 import ActionCard from './components/ActionCard';
 import ProgressBar from './components/ProgressBar';
-import LoadingSpinner from './components/LoadingSpinner';
 import Toast from './components/Toast';
 import Header from './components/Header';
 import StartScreen from './components/StartScreen';
 import ReviewScreen from './components/ReviewScreen';
+import InitialLoadingScreen from './components/InitialLoadingScreen';
 
 type View = 'start' | 'wizard' | 'review';
 
@@ -24,6 +24,8 @@ const App: React.FC = () => {
     useEffect(() => {
         const loadInitialData = async () => {
             try {
+                // Simulate loading time for better UX
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 const fetchedSteps = await fetchSteps();
                 setSteps(fetchedSteps);
             } catch (err) {
@@ -111,15 +113,11 @@ const App: React.FC = () => {
         setView('review');
     };
 
-    const renderContent = () => {
-        if (!initialDataLoaded) {
-            return (
-                <div className="flex items-center justify-center min-h-[50vh]">
-                    <LoadingSpinner />
-                </div>
-            );
-        }
+    if (!initialDataLoaded) {
+        return <InitialLoadingScreen />;
+    }
 
+    const renderContent = () => {
         if (error) {
             return <div className="flex items-center justify-center min-h-[50vh] text-red-600 text-xl">{error}</div>;
         }
