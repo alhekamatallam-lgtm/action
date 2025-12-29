@@ -1,0 +1,5 @@
+{
+  "name": "Workflow SLA Configuration Wizard",
+  "description": "An interactive wizard for the Head of Institutional Excellence to define the Estimated Action Duration (SLA) for each step in a workflow. The application features a step-by-step card-based interface, dynamic description generation using AI, and immediate, secure saving of each entry.",
+  "requestFramePermissions": []
+}
