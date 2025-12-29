@@ -2,15 +2,29 @@
 import { GoogleGenAI } from "@google/genai";
 import { type WorkflowStep } from '../types';
 
-const API_KEY = process.env.API_KEY;
-if (!API_KEY) {
-  // This is a fallback for development; in production, the key should be set.
+// Safely access the API key to prevent "process is not defined" error in browsers.
+const API_KEY = (typeof process !== 'undefined' && process.env) ? process.env.API_KEY : undefined;
+
+let ai: GoogleGenAI | null = null;
+
+// Initialize the AI client only if the API key is available.
+if (API_KEY) {
+  try {
+    ai = new GoogleGenAI({ apiKey: API_KEY });
+  } catch (error) {
+    console.error("Failed to initialize GoogleGenAI:", error);
+    ai = null;
+  }
+} else {
   console.warn("Gemini API key not found. Using a placeholder description service.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
-
 const generateGeminiDescription = async (step: WorkflowStep): Promise<string> => {
+    if (!ai) {
+      console.error("Gemini AI client is not initialized.");
+      return generatePlaceholderDescription(step);
+    }
+    
     const { "Workflow State": workflowState, "Update Value": updateValue, "Only Allow Edit For": responsibleParty } = step;
 
     const prompt = `
@@ -63,7 +77,7 @@ const generatePlaceholderDescription = (step: WorkflowStep): string => {
 
 
 export const generateDescription = async (step: WorkflowStep): Promise<string> => {
-    if (!API_KEY) {
+    if (!ai) {
         return generatePlaceholderDescription(step);
     }
     return generateGeminiDescription(step);
